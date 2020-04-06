@@ -1,0 +1,32 @@
+import pandas as pd
+import numpy as np
+import random as rnd
+
+# visualization
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('../Python/csv/time_series_covid19.csv') # importing dataset
+df.head()
+dl=df.drop(["Province/State","Lat","Long"],1)  # dropping unusual column
+dl.set_index("Country/Region").T
+dtur=dl.set_index("Country/Region").groupby("Country/Region").sum().T
+
+
+fig, ax = plt.subplots(figsize=(16,10))
+for ctr in dtur.columns:
+    if dtur[dtur[ctr]>100].empty or dtur[ctr].max() < 5000:
+        continue
+
+    if ctr in []:
+        continue
+
+    df_temp = dtur[dtur[ctr]>100][ctr].reset_index(drop=True)
+    df_temp.iloc[:35].plot(label=ctr, logy=True)
+    plt.text(df_temp.iloc[:35].index.max(), df_temp.iloc[:35].max(), ctr)
+plt.legend()
+
+plt.xlabel('Days after 100th confirmed case in country')
+plt.ylabel('Confirmed Cases')
+plt.title('COVID-19: Spread by Country')
+plt.grid()
